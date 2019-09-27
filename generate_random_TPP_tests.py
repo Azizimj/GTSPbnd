@@ -26,10 +26,16 @@ import sys
 M = 0
 infty = 10000
 
+def make_dir(dir):
+    if not os.path.exists(dir):
+        print("dir ( {} ) is made ".format(dir))
+        os.mkdir(dir)
 
 def write_WTSP_instance(distance_matrix, clusters, visit_times, input_file_name):
-    os.chdir("/Users/jiachuan_chen/Desktop/WTSPLIB_RANDOM_TPP")
-    f = open(input_file_name + ".gtsp", "w")
+    dir_ = "WTSPLIB_RANDOM_TPP/"
+    make_dir(dir_)
+    # os.chdir(dir_)
+    f = open(dir_+input_file_name + ".gtsp", "w")
     f.write("NAME :" + input_file_name + "\n")
     f.write("NUM_VERTICES\n")
     f.write(str(len(distance_matrix)) + "\n")
@@ -58,8 +64,10 @@ def write_tpp_file_to_glns(distance_matrix, cluster, input_file_name):
     # must use a different matrix
     distance_matrix_glns = distance_matrix * 1000 # scale here is 1000
     distance_matrix_glns = distance_matrix_glns.round()
-    os.chdir("/Users/jiachuan_chen/Desktop/GLNS/GLNSLIB_RANDOM_TPP")
-    f = open(input_file_name + ".gtsp", "w")
+    dir_ = "GLNSLIB_RANDOM_TPP/"
+    make_dir(dir_)
+    # os.chdir(dir_)
+    f = open(dir_+input_file_name + ".gtsp", "w")
     f.write("NAME : " + input_file_name + "\n")
     f.write("TYPE : GTSP\n")
     f.write("DIMENSION : " + str(len(distance_matrix_glns)) + "\n")
@@ -184,7 +192,7 @@ if __name__ == '__main__':
         x_limit = 1
         y_limit = 1
         num_cluster_lower = 11
-        num_cluster_upper = 150
+        num_cluster_upper = 15
         visit_time = 2
     
     for num_clusters in range(num_cluster_lower, num_cluster_upper + 1):
