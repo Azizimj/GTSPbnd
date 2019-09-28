@@ -24,9 +24,10 @@ def integ_trun():
     epsrel_ = 1e-4
     epsabs_ = 1.49e-8
 
-    area = n**(1/2) * dblquad(lambda x, y:math.sqrt(k/(c*math.pi)**k*math.exp(-(x-mux)**2/0.2-(y-muy)**2/0.2)*(dblquad(lambda x1,y1:math.exp(-(x1-mux)**2/0.2-(y1-muy)**2/0.2)*int((x1-mux)**2/0.2+(y1-muy)**2/0.2<(x-mux)**2/0.2+(y-muy)**2/0.2),0,1,0,1,epsabs=epsabs_, epsrel=epsrel_))[0]**(k-1))
-                   , 0, 1, 0, 1,epsrel =epsrel_,epsabs=epsabs_)[0]
+    area = dblquad(lambda x, y:math.sqrt(k/(c*math.pi)**k*math.exp(-(x-mux)**2/0.2-(y-muy)**2/0.2)*(dblquad(lambda x1,y1:math.exp(-(x1-mux)**2/0.2-(y1-muy)**2/0.2)*int((x1-mux)**2/0.2+(y1-muy)**2/0.2<(x-mux)**2/0.2+(y-muy)**2/0.2),0,1,0,1,epsabs=epsabs_, epsrel=epsrel_))[0]**(k-1))
+                   , 0, 1, 0, 1,epsrel =epsrel_,epsabs=epsabs_)
     print(area)
+    print(n**(1/2)*area)
 
 if __name__ == '__main__':
     import time
