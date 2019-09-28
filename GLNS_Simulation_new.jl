@@ -1,5 +1,7 @@
 include("GLNS.jl")
 
+using  DataFrames, CSV
+DataFrames_ = DataFrames;
 function mkdire_(dire_)
 	if !isdir(dire_)
 		mkdir(dir_)
@@ -9,8 +11,8 @@ end
 ranges = 20:5:60
 kk = 5
 mm = 3
-print("k ", kk, " m ", mm,"\n")
-k_m = "k_" * string(kk) * "_m_" * string(mm)
+# print("k ", kk, " m ", mm,"\n")
+# k_m = "k_" * string(kk) * "_m_" * string(mm)
 itera = 5
 ins_folder = "GLNSLIB_RANDOM_TPP/"
 
@@ -55,13 +57,22 @@ function runProofTest()
 end
 # runProofTest()
 
+function write_res(ins, n,k,m,obj)
+
+	df = DataFrames_.DataFrame(ins=ins, n=n,k=k,m=m,obj=obj)
+
+    CSV.write("res.csv", df, append=true)
+end
 
 function runGTSPApx()
     scale = 1000
-    file_name = "result.txt"
-    f = open(file_name, "w")
+#     file_name = "result.txt"
+#     f = open(file_name, "w")
     for ins in readdir(ins_folder)
-        println(ins*"\n")
+		ins_na = "\n\n\n"*ins
+        println(ins_na)
+# 		write(f, ins_na)
+
         ins_info = split(ins,"_")
         nn = parse(Int, ins_info[end-2])
         kk = parse(Int, ins_info[end-1])
@@ -77,8 +88,9 @@ function runGTSPApx()
         println("obj = $sol_obj \n")
         retVal = sol_obj / divided
         println("normed_obj = $retVal \n")
-        write(f, "$retVal,")
+#         write(f, "$retVal, \n")
+		write_res(ins, nn,kk,mm,sol_obj)
     end
-    close(f)
+#     close(f)
 end
 runGTSPApx()
