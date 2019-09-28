@@ -11,6 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+
+
+# Change the print defaults. All printed stat are quoted by ##
 module GLNS
 export solver
 using Random
@@ -25,6 +29,26 @@ include("src/parameter_defaults.jl")
 Main GTSP solver, which takes as input a problem instance and
 some optional arguments
 """
+
+"""
+The tic and toc of v0.6 version implementation
+"""
+function tic()
+    t0 = time_ns()
+    task_local_storage(:TIMERS, (t0, get(task_local_storage(), :TIMERS, ())))
+    return t0
+end
+function toq()
+    t1 = time_ns()
+    timers = get(task_local_storage(), :TIMERS, ())
+    if timers === ()
+        error("toc() without tic()")
+    end
+    t0 = timers[1]::UInt64
+    task_local_storage(:TIMERS, timers[2])
+    (t1-t0)/1e9
+end
+
 function solver(problem_instance; args...)
 	###### Read problem data and solver settings ########
 	num_vertices, num_sets, sets, dist, membership = read_file(problem_instance)
@@ -38,7 +62,10 @@ function solver(problem_instance; args...)
 				 :total_iter => 0,
 				 :print_time => init_time)
 	lowest = Tour(Int64[], typemax(Int64))
-	start_time = time_ns()
+	## added tic()
+	#start_time = time_ns()
+	start_time = tic()
+
 	# compute set distances which will be helpful
 	setdist = set_vertex_dist(dist, num_sets, membership)
 	powers = initialize_powers(param)
@@ -97,19 +124,20 @@ function solver(problem_instance; args...)
 			    if best.cost <= param[:budget] || time() - init_time > param[:max_time]
 					param[:timeout] = (time() - init_time > param[:max_time])
 					param[:budget_met] = (best.cost <= param[:budget])
-					timer = (time_ns() - start_time)/1.0e9
+					## The unused command in v1.0
+					timer = toq()
 					lowest.cost > best.cost && (lowest = best)
-					print_best(count, param, best, lowest, init_time)
-					print_summary(lowest, timer, membership, param)
+					##print_best(count, param, best, lowest, init_time)
+					##print_summary(lowest, timer, membership, param)
 					return
 				end
 
 		        temperature *= cooling_rate  # cool the temperature
 				iter_count += 1
 				count[:total_iter] += 1
-				print_best(count, param, best, lowest, init_time)
+				##print_best(count, param, best, lowest, init_time)
 			end
-			print_warm_trial(count, param, best, iter_count)
+			#print_warm_trial(count, param, best, iter_count)
 			# on the first cold trial, we are just determining
 			count[:warm_trial] += 1
 			count[:latest_improvement] = 1
@@ -123,7 +151,7 @@ function solver(problem_instance; args...)
 
 	end
 	timer = (time_ns() - start_time)/1.0e9
-	print_summary(lowest, timer, membership, param)
+	##print_summary(lowest, timer, membership, param)
 	return [lowest.cost, timer]
 end
 end

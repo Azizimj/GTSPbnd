@@ -1,11 +1,18 @@
 include("GLNS.jl")
 
+function mkdire_(dire_)
+	if !isdir(dire_)
+		mkdir(dir_)
+	end
+end
+
 ranges = 20:5:60
 kk = 5
 mm = 3
 print("k ", kk, " m ", mm,"\n")
 k_m = "k_" * string(kk) * "_m_" * string(mm)
 itera = 5
+ins_folder = "GLNSLIB_RANDOM_TPP/"
 
 function runSimulation()
     scale = 1000
@@ -27,7 +34,7 @@ end
 
 function runProofTest()
     scale = 1000
-    file_name = "F:/Acad/research/Carlsson/GLNS/TPP_proof/result" * k_m * ".txt"
+    file_name = "result" * k_m * ".txt"
     f = open(file_name, "w")
     for num_clusters = ranges
         println("num_clusters = $num_clusters")
@@ -46,4 +53,32 @@ function runProofTest()
     end
     close(f)
 end
-runProofTest()
+# runProofTest()
+
+
+function runGTSPApx()
+    scale = 1000
+    file_name = "result.txt"
+    f = open(file_name, "w")
+    for ins in readdir(ins_folder)
+        println(ins*"\n")
+        ins_info = split(ins,"_")
+        nn = parse(Int, ins_info[end-2])
+        kk = parse(Int, ins_info[end-1])
+        mm = parse(Int, split(ins_info[end],".")[1])
+
+        sol_obj = 0
+        divided = mm * sqrt(2 * nn / kk)
+        for iter = 1:itera
+            ret = GLNS.solver(ins_folder* ins, mode = "fast")
+            sol_obj += ret[1]/scale
+        end
+        sol_obj = sol_obj / itera
+        println("obj = $sol_obj \n")
+        retVal = sol_obj / divided
+        println("normed_obj = $retVal \n")
+        write(f, "$retVal,")
+    end
+    close(f)
+end
+runGTSPApx()
