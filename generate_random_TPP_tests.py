@@ -21,6 +21,8 @@ import time
 import random
 import math
 import sys
+from scipy.stats import truncnorm
+
 # global constant
 # for GLNS proof test, set M to be 0
 M = 0
@@ -138,6 +140,14 @@ def trans_to_GTSP(distance_matrix, clusters, visit_times):
             ret_cluster[i] += 1
     return [ret_matrix, ret_clusters]
 
+def truncnorm_gen(lim):
+    low = 0
+    hi = lim
+    mu = 0.5
+    sig2 = 0.1
+
+    return truncnorm.rvs(a=low,b=hi,loc=mu, scale=sig2)
+
 
 def gen_rand_TPP(num_clusters, min_card, max_card, x_limit, y_limit, visit_time):
     data_points = []
@@ -146,8 +156,10 @@ def gen_rand_TPP(num_clusters, min_card, max_card, x_limit, y_limit, visit_time)
     visit_times = []
     for i in range(num_clusters):
         if i == 0:
-            temp_x = random.uniform(0, x_limit)
-            temp_y = random.uniform(0, y_limit)
+            # temp_x = random.uniform(0, x_limit)
+            # temp_y = random.uniform(0, y_limit)
+            temp_x = truncnorm_gen(x_limit)
+            temp_y = truncnorm_gen(y_limit)
             data_points.append([temp_x, temp_y])
             clusters.append([crt_vertex])
             visit_times.append(1)
@@ -156,16 +168,19 @@ def gen_rand_TPP(num_clusters, min_card, max_card, x_limit, y_limit, visit_time)
             temp_k = random.randint(min_k, max_k)
             temp_cluster = []
             for j in range(temp_k):
-                temp_x = random.uniform(0, x_limit)
-                temp_y = random.uniform(0, y_limit)
+                # temp_x = random.uniform(0, x_limit)
+                # temp_y = random.uniform(0, y_limit)
+                temp_x = truncnorm_gen(x_limit)
+                temp_y = truncnorm_gen(y_limit)
                 data_points.append([temp_x, temp_y])
                 temp_cluster.append(crt_vertex)
                 crt_vertex += 1
             clusters.append(temp_cluster)
             visit_times.append(visit_time)
     distance_matrix = np.ones((len(data_points), len(data_points))) * infty
-    for i in range(len(data_points)):
-        for j in range(len(data_points)):
+    dime = len(data_points)
+    for i in range(dime):
+        for j in range(dime):
             if i != j:
                 distance_matrix[i, j] = get_distance(data_points[i], data_points[j])
     return [distance_matrix, clusters, visit_times, data_points]
@@ -191,12 +206,13 @@ if __name__ == '__main__':
         max_k = 3
         x_limit = 1
         y_limit = 1
-        num_cluster_lower = 11
-        num_cluster_upper = 15
+        num_cluster_lower = 20
+        num_cluster_upper = 30
         visit_time = 2
     
     for num_clusters in range(num_cluster_lower, num_cluster_upper + 1):
-        print(str(num_clusters) + "_" + str(min_k) + "_" + str(visit_time) + " begins")
+        ins_name = str(num_clusters) + "_" + str(min_k) + "_" + str(visit_time)
+        print(ins_name + " begins")
         struct = gen_rand_TPP(num_clusters, min_k, max_k, x_limit, y_limit, visit_time)
         distance_matrix = struct[0]
         cluster = struct[1]
@@ -204,8 +220,8 @@ if __name__ == '__main__':
         ret = trans_to_GTSP(distance_matrix, cluster, dup)
         
         # write instance for WTSP
-        input_file_name = "TPP_input" + "_" + str(num_clusters)
+        input_file_name = "TPP_input" + "_" + ins_name
         write_WTSP_instance(distance_matrix, cluster, dup, input_file_name)
         # write instance for GLNS
         write_tpp_file_to_glns(ret[0], ret[1], input_file_name)
-        print(str(num_clusters) + " ends")
+        print(ins_name + " ends")
