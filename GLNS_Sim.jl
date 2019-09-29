@@ -14,7 +14,7 @@ mm = 3
 # print("k ", kk, " m ", mm,"\n")
 # k_m = "k_" * string(kk) * "_m_" * string(mm)
 
-itera =
+itera = 5
 ins_folder = "GLNSLIB_RANDOM_TPP/"
 
 
