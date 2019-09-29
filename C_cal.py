@@ -69,26 +69,22 @@ if __name__ == '__main__':
     low_n = 15
     up_n = 30
 
+    # pool async parall
     results = []
-
     def collect_result(result):
         global results
         results.append(result)
-
     for n, k in product(range(low_n, up_n + 1), range(low_k, up_k + 1)):
         pool.apply_async(integ_trun, args=(n, k), callback=collect_result)
     pool.close()
     pool.join()
-
     results.sort(key=lambda x: x[0])
     results_final = [r for i, r in results]
     print(results_final)
 
+    # pool apply parall
     # results = [pool.apply(integ_trun, args=(n, k)) for n, k in product(range(low_n, up_n + 1), range(low_k, up_k + 1))]
     # pool.close()
     # print(results)
-
-
-
 
     print("total time: {}".format(time.time()-t_) )

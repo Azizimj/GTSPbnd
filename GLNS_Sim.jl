@@ -16,6 +16,17 @@ mm = 3
 itera = 5
 ins_folder = "GLNSLIB_RANDOM_TPP/"
 
+
+if size(ARGS)[1]>0
+	ins_folder = ARGS[1]
+	ins_name = ARGS[2]
+	runGTSPApx(ins_folder, ins_name)
+	exit()
+end
+
+
+
+
 function runSimulation()
     scale = 1000
     for num_clusters = ranges
@@ -64,33 +75,36 @@ function write_res(ins, n,k,m,obj)
     CSV.write("res.csv", df, append=true)
 end
 
-function runGTSPApx()
+function runGTSPApx(ins_folder, ins_name)
     scale = 1000
-#     file_name = "result.txt"
-#     f = open(file_name, "w")
-    for ins in readdir(ins_folder)
-		ins_na = "\n\n\n"*ins
-        println(ins_na)
-# 		write(f, ins_na)
+	ins_na = "\n\n\n"*ins_name
+	println(ins_na)
 
-        ins_info = split(ins,"_")
-        nn = parse(Int, ins_info[end-2])
-        kk = parse(Int, ins_info[end-1])
-        mm = parse(Int, split(ins_info[end],".")[1])
+	ins_info = split(ins_name,"_")
+	nn = parse(Int, ins_info[end-2])
+	kk = parse(Int, ins_info[end-1])
+	mm = parse(Int, split(ins_info[end],".")[1])
+	sol_obj = 0
+	divided = mm * sqrt(2 * nn / kk)
+	for iter = 1:itera
+		ret = GLNS.solver(ins_folder* ins_name, mode = "fast")
+		sol_obj += ret[1]/scale
+	end
+	sol_obj = sol_obj / itera
+	println("obj = $sol_obj \n")
+	retVal = sol_obj / divided
+	println("normed_obj = $retVal \n")
+	write_res(ins_name, nn,kk,mm,sol_obj)
 
-        sol_obj = 0
-        divided = mm * sqrt(2 * nn / kk)
-        for iter = 1:itera
-            ret = GLNS.solver(ins_folder* ins, mode = "fast")
-            sol_obj += ret[1]/scale
-        end
-        sol_obj = sol_obj / itera
-        println("obj = $sol_obj \n")
-        retVal = sol_obj / divided
-        println("normed_obj = $retVal \n")
-#         write(f, "$retVal, \n")
-		write_res(ins, nn,kk,mm,sol_obj)
-    end
-#     close(f)
 end
-runGTSPApx()
+
+function runGTSPApx_folder()
+    for ins in readdir(ins_folder)
+		runGTSPApx(ins_folder, ins)
+    end
+end
+runGTSPApx_folder()
+
+
+
+

@@ -165,7 +165,7 @@ def gen_rand_TPP(num_clusters, min_card, max_card, x_limit, y_limit, visit_time)
             visit_times.append(1)
             crt_vertex += 1
         else:
-            temp_k = random.randint(min_k, max_k)
+            temp_k = random.randint(min_card, max_card)
             temp_cluster = []
             for j in range(temp_k):
                 # temp_x = random.uniform(0, x_limit)
@@ -191,16 +191,44 @@ def get_distance(a, b):
     y = np.array(b)
     return np.linalg.norm(x - y)
 
+def gen_and_trans_ins(n,k,m):
+    # k = 4
+    min_k = k
+    max_k = k
+    visit_time = m
+    x_limit = 1
+    y_limit = 1
+
+    ins_name = str(n) + "_" + str(min_k) + "_" + str(visit_time)
+    print(ins_name + " begins")
+    struct = gen_rand_TPP(n, min_k, max_k, x_limit, y_limit, visit_time)
+    distance_matrix = struct[0]
+    cluster = struct[1]
+    dup = struct[2]
+    ret = trans_to_GTSP(distance_matrix, cluster, dup)
+
+    # write instance for WTSP
+    input_file_name = "TPP_input" + "_" + ins_name
+    write_WTSP_instance(distance_matrix, cluster, dup, input_file_name)
+    # write instance for GLNS
+    write_tpp_file_to_glns(ret[0], ret[1], input_file_name)
+    print(ins_name + " ends")
+
 
 if __name__ == '__main__':
-    # if len(sys.argv) > 1:
-    #     x_limit = float(sys.argv[1])
-    #     y_limit = float(sys.argv[2])
-    #     min_k = int(sys.argv[3])
-    #     max_k = int(sys.argv[4])
-    #     num_cluster_lower = int(sys.argv[5])
-    #     num_cluster_upper = int(sys.argv[6])
-    #     visit_time = int(sys.argv[7])
+    if len(sys.argv) > 1:
+        # x_limit = float(sys.argv[1])
+        # y_limit = float(sys.argv[2])
+        # min_k = int(sys.argv[3])
+        # max_k = int(sys.argv[4])
+        # num_cluster_lower = int(sys.argv[5])
+        # num_cluster_upper = int(sys.argv[6])
+        # visit_time = int(sys.argv[7])
+        n = int(sys.argv[1])
+        k = int(sys.argv[2])
+        m = int(sys.argv[3])
+        gen_and_trans_ins(n,k,m)
+        exit()
     # else:
     #     k = 4
     #     min_k = k
@@ -211,35 +239,31 @@ if __name__ == '__main__':
     #     num_cluster_lower = 5
     #     num_cluster_upper = 30
 
+    low_n = 30
+    up_n = 80
+    step_n = 10
     low_k = 3
     up_k = 5
+    step_k = 1
     low_m = 1
-    up_m = 5
-    low_n = 15
-    up_n = 30
+    up_m = 1
+    step_m = 1
 
     from itertools import product
 
-    for n,k,m in product(range(low_n, up_n + 1), range(low_k, up_k + 1), range(low_m, up_m + 1)):
+    t_ =  time.time()
+    for n,k,m in product(range(low_n, up_n + 1, step_n), range(low_k, up_k + 1, step_k), range(low_m, up_m + 1, step_m)):
         if k>=m:
-            # k = 4
-            min_k = k
-            max_k = k
-            visit_time = m
-            x_limit = 1
-            y_limit = 1
+            gen_and_trans_ins(n,k,m)
+    print("All done in {} sec".format(time.time()-t_))
 
-            ins_name = str(n) + "_" + str(min_k) + "_" + str(visit_time)
-            print(ins_name + " begins")
-            struct = gen_rand_TPP(n, min_k, max_k, x_limit, y_limit, visit_time)
-            distance_matrix = struct[0]
-            cluster = struct[1]
-            dup = struct[2]
-            ret = trans_to_GTSP(distance_matrix, cluster, dup)
 
-            # write instance for WTSP
-            input_file_name = "TPP_input" + "_" + ins_name
-            write_WTSP_instance(distance_matrix, cluster, dup, input_file_name)
-            # write instance for GLNS
-            write_tpp_file_to_glns(ret[0], ret[1], input_file_name)
-            print(ins_name + " ends")
+
+    # t_ = time.time()
+    # import multiprocessing as mp
+    # pool = mp.Pool(mp.cpu_count())
+    # for n,k,m in product(range(low_n, up_n + 1, step_n), range(low_k, up_k + 1, step_k), range(low_m, up_m + 1, step_m)):
+    #     pool.apply_async(gen_and_trans_ins, args=(n, k, m))
+    # pool.close()
+    # pool.join()
+    # print("All done in {} sec".format(time.time()-t_))
