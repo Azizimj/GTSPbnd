@@ -13,7 +13,8 @@ kk = 5
 mm = 3
 # print("k ", kk, " m ", mm,"\n")
 # k_m = "k_" * string(kk) * "_m_" * string(mm)
-itera = 5
+
+itera =
 ins_folder = "GLNSLIB_RANDOM_TPP/"
 
 
@@ -58,10 +59,9 @@ function runProofTest()
 end
 # runProofTest()
 
-function write_res(ins, n,k,m,obj)
+function write_res(ins, n, k, m, seed_, obj)
 
-	df = DataFrames_.DataFrame(ins=ins, n=n,k=k,m=m,obj=obj)
-
+	df = DataFrames_.DataFrame(ins=ins, n=n,k=k,m=m, seed_=seed_, obj=obj)
     CSV.write("res.csv", df, append=true)
 end
 
@@ -71,9 +71,11 @@ function runGTSPApx(ins_folder, ins_name)
 	println(ins_na)
 
 	ins_info = split(ins_name,"_")
-	nn = parse(Int, ins_info[end-2])
-	kk = parse(Int, ins_info[end-1])
-	mm = parse(Int, split(ins_info[end],".")[1])
+	nn = parse(Int, ins_info[end-3])
+	kk = parse(Int, ins_info[end-2])
+	mm = parse(Int, ins_info[end-1])
+	seed_ = parse(Int, split(ins_info[end],".")[1])
+	print("n $nn, k $kk, m $mm , seed $seed_")
 	sol_obj = 0
 	divided = mm * sqrt(2 * nn / kk)
 	for iter = 1:itera
@@ -84,7 +86,7 @@ function runGTSPApx(ins_folder, ins_name)
 	println("obj = $sol_obj \n")
 	retVal = sol_obj / divided
 	println("normed_obj = $retVal \n")
-	write_res(ins_name, nn,kk,mm,sol_obj)
+	write_res(ins_name, nn,kk,mm,seed_, sol_obj)
 
 end
 

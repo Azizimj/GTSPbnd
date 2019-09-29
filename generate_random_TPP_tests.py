@@ -1,20 +1,3 @@
-#!/usr/bin/env python2
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Apr  3 23:28:27 2019
-
-@author: jiachuan_chen
-"""
-
-#!/usr/bin/env python2
-# -*- coding: utf-8 -*-
-"""
-This file is to generate the small random GTSP tests to compare the performance between WTSP and GLNS
-Created on Tue Mar 19 21:12:30 2019
-
-@author: jiachuan_chen
-"""
-
 import numpy as np
 import os
 import time
@@ -191,7 +174,7 @@ def get_distance(a, b):
     y = np.array(b)
     return np.linalg.norm(x - y)
 
-def gen_and_trans_ins(n,k,m):
+def gen_and_trans_ins(n,k,m, seed_):
     # k = 4
     min_k = k
     max_k = k
@@ -199,7 +182,9 @@ def gen_and_trans_ins(n,k,m):
     x_limit = 1
     y_limit = 1
 
-    ins_name = str(n) + "_" + str(min_k) + "_" + str(visit_time)
+    np.random.seed(seed=seed_)
+
+    ins_name = str(n) + "_" + str(min_k) + "_" + str(visit_time)+ "_" + str(seed_)
     print(ins_name + " begins")
     struct = gen_rand_TPP(n, min_k, max_k, x_limit, y_limit, visit_time)
     distance_matrix = struct[0]
@@ -227,7 +212,8 @@ if __name__ == '__main__':
         n = int(sys.argv[1])
         k = int(sys.argv[2])
         m = int(sys.argv[3])
-        gen_and_trans_ins(n,k,m)
+        seed_ = int(sys.argv[4])
+        gen_and_trans_ins(n, k, m, seed_)
         exit()
     # else:
     #     k = 4
