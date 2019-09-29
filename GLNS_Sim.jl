@@ -17,16 +17,6 @@ itera = 5
 ins_folder = "GLNSLIB_RANDOM_TPP/"
 
 
-if size(ARGS)[1]>0
-	ins_folder = ARGS[1]
-	ins_name = ARGS[2]
-	runGTSPApx(ins_folder, ins_name)
-	exit()
-end
-
-
-
-
 function runSimulation()
     scale = 1000
     for num_clusters = ranges
@@ -96,6 +86,13 @@ function runGTSPApx(ins_folder, ins_name)
 	println("normed_obj = $retVal \n")
 	write_res(ins_name, nn,kk,mm,sol_obj)
 
+end
+
+if size(ARGS)[1]>0
+	ins_folder = ARGS[1]
+	ins_name = ARGS[2]
+	runGTSPApx(ins_folder, ins_name)
+	exit()
 end
 
 function runGTSPApx_folder()
