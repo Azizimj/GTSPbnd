@@ -1,0 +1,2 @@
+#############################
+{'low_n': 30, 'up_n': 50, 'step_n': 10, 'low_k': 3, 'up_k': 8, 'step_k': 3, 'low_m': 1, 'up_m': 1, 'step_m': 1, 'seed_l': 100, 'seed_u': 105, 'seed_step': 1}

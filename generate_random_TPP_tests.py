@@ -127,7 +127,8 @@ def truncnorm_gen(lim):
     low = 0
     hi = lim
     mu = 0.5
-    sig2 = 0.1
+    sig2 = 0.1  # this is like default *0.1 so var in trun norm formula is 0.1*2 = 0.01
+    # var is ~ 0.0007968834
 
     return truncnorm.rvs(a=low,b=hi,loc=mu, scale=sig2)
 

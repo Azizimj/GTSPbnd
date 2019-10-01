@@ -6,15 +6,15 @@ import time
 def cal_c():
     from scipy.stats import mvn
     import numpy as np
-
-
     low = np.array([0, 0])
     upp = np.array([1, 1])
     mu = np.array([.5, .5])
-    S = np.array([[0.1, 0],[0.1, 0]])
-    p, i = mvn.mvnun(low,upp,mu,S)
-    # print(.2*p, i)
-    return p
+    sigx = 1
+    S = np.array([[sigx, 0], [0, sigx]])
+    scale = 1
+    p, i = mvn.mvnun(low, upp, mu, S)
+    # print(p, i)
+    return p*scale
 
 def write_on_csv(n,k,m,res,t):
 
@@ -37,9 +37,10 @@ def integ_trun(n,k):
     c = 2* cal_c()
     epsrel_ = 1e-4
     epsabs_ = 1.49e-8
+    sigx = 1
 
-    area = dblquad(lambda x, y:math.sqrt(k/(c*math.pi)**k*math.exp(-(x-mux)**2/0.2-(y-muy)**2/0.2)*(dblquad(lambda x1,y1:math.exp(-(x1-mux)**2/0.2-(y1-muy)**2/0.2)*int((x1-mux)**2/0.2+(y1-muy)**2/0.2<(x-mux)**2/0.2+(y-muy)**2/0.2),0,1,0,1,epsabs=epsabs_, epsrel=epsrel_))[0]**(k-1))
-                   , 0, 1, 0, 1,epsrel =epsrel_,epsabs=epsabs_)
+    area = dblquad(lambda x, y:math.sqrt(k/(c*math.pi)**k*math.exp(-(x-mux)**2/(2*sigx)-(y-muy)**2/(2*sigx))*(dblquad(lambda x1,y1:math.exp(-(x1-mux)**2/(2*sigx)-(y1-muy)**2/(2*sigx))*int((x1-mux)**2/sigx+(y1-muy)**2/sigx<(x-mux)**2/sigx+(y-muy)**2/sigx),0,1,0,1,epsabs=epsabs_, epsrel=epsrel_))[0]**(k-1))
+                   , 0, 1, 0, 1, epsrel =epsrel_, epsabs=epsabs_)
     print(area)
     res = n ** (1 / 2) * area[0]
     print("n {}, k {}, m {}, res {} ".format(n,k,m,res))
@@ -62,19 +63,32 @@ if __name__ == '__main__':
     from itertools import product
 
     pool = mp.Pool(mp.cpu_count())
-    low_k = 3
-    up_k = 5
-    # low_m = 1
-    # up_m = 5
-    low_n = 15
-    up_n = 30
+    par = {}
+    par['low_n'] = 30
+    par['up_n'] = 50
+    par['step_n'] = 5
+
+    par['low_k'] = 3
+    par['up_k'] = 8
+    par['step_k'] = 3
+
+    par['low_m'] = 1
+    par['up_m'] = 1
+    par['step_m'] = 1
+
+    par['seed_l'] = 100
+    par['seed_u'] = 105
+    par['seed_step'] = 1
 
     # pool async parall
     results = []
     def collect_result(result):
         global results
         results.append(result)
-    for n, k in product(range(low_n, up_n + 1), range(low_k, up_k + 1)):
+
+
+    for n, k in product(range(par['low_n'], par['up_n'] + 1, par['step_n']),
+                                  range(par['low_k'], par['up_k'] + 1, par['step_k'])):
         pool.apply_async(integ_trun, args=(n, k), callback=collect_result)
     pool.close()
     pool.join()
