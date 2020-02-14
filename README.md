@@ -1,3 +1,8 @@
+# GLNS used for GTSP bounds
+
+Added on top of this repo to evaluate our bounds on GTSP.
+
+
 # GLNS
 
 A Generalized Traveling Salesman Problem (GTSP) Solver.  
